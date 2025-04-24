@@ -21,7 +21,12 @@ const gameBoard = (function () {
         }
     }
 
+    const checkForDraw = function () {
+        return gameBoardArr.every(cell => cell !== null);
+    }
+
     const checkForWinner = function () {
+
         let arr = gameBoardArr;
         // Go through each winner combination
         // and return true if gameboard has spots that match a winning sequence
@@ -32,7 +37,6 @@ const gameBoard = (function () {
                 arr[wi[2]]
             ))
     };
-
 
     const winnerSequences = [
         [0, 1, 2],
@@ -47,44 +51,84 @@ const gameBoard = (function () {
 
     const getGameBoard = () => { return gameBoardArr };
     const isSpotEmpty = (location) => { return (gameBoardArr[location] == null); }
-    const checkIfSame = (a, b, c) => {return a === b && b === c && a != null};
-    
-    return { init, placeMark, getGameBoard, checkForWinner }
+    const checkIfSame = (a, b, c) => {
+        return a === b && b === c && a != null
+    };
+
+    return { init, placeMark, getGameBoard, checkForWinner, checkForDraw }
 })();
+
+const Players = (function () {
+
+    let players = {
+        player1: createPlayer("Player1", "X", "human"),
+        player2: createPlayer("Player2", "O", "cpu")
+    }
+
+    function createPlayer(name, mark, type) {
+        let player = {
+            name: name,
+            mark: mark,
+            type: type,
+        }
+
+        let changeName = (name) => { player.name = name }
+        let getName = () => player.name;
+
+        let changeMark = (mark) => { player.mark = mark }
+        let getMark = () => player.mark;
+
+        let toggleType = () => {
+            player.type === "human" ? player.type = "cpu" : player.type = "human";
+        }
+        let getType = () => player.type;
+
+
+        return { changeName, getName, changeMark, getMark, toggleType, getType }
+    }
+
+    return { players }
+
+})();
+
 
 const playGame = (function () {
     gameBoard.init();
 
-    let player1 = {
-        name: "player1",
-        mark: "x",
-    }
+    let players = Players.players;
 
-    let player2 = {
-        name: "player2",
-        mark: "o",
-    }
-
-    let currentPlayer = player1
+    let currentPlayer = players.player1;
 
     //Plays next turn only if spot is not taken
     const nextTurn = function (location) {
-        if (gameBoard.placeMark(currentPlayer.mark, location != null ? location : random())) {
+
+        if (gameBoard.placeMark(currentPlayer.getMark(), location != null ? location : random())) {
             checkForWinner();
         }
         console.log(gameBoard.getGameBoard());
+
+        checkForDraw()
     }
 
     const checkForWinner = function () {
         //CHECK FOR A WINNER CODE
         gameBoard.checkForWinner() ?
-            console.log(`${currentPlayer.name} wins!`) :
+            gameOver(`${currentPlayer.getName()} wins!`) :
             swtichTurn();
+    }
+
+    const checkForDraw = function () {
+        if (gameBoard.checkForDraw()) gameOver("Draw");
+    }
+
+    const gameOver = function (message) {
+        console.log(message);
+
     }
 
     //swaps whos turn it is
     const swtichTurn = function () {
-        currentPlayer = (currentPlayer === player1 ? player2 : player1)
+        currentPlayer = (currentPlayer === players.player1 ? players.player2 : players.player1)
     }
 
     //Random number between 1-9
@@ -92,3 +136,15 @@ const playGame = (function () {
 
     return { nextTurn }
 })();
+
+
+
+playGame.nextTurn(0)
+playGame.nextTurn(2)
+playGame.nextTurn(1)
+playGame.nextTurn(3)
+playGame.nextTurn(5)
+playGame.nextTurn(4)
+playGame.nextTurn(6)
+playGame.nextTurn(7)
+playGame.nextTurn(8)
