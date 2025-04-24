@@ -1,5 +1,33 @@
+var events = {
+    events: {},
+    on: function (eventName, fn) {
+      this.events[eventName] = this.events[eventName] || [];
+      this.events[eventName].push(fn);
+    },
+    off: function(eventName, fn) {
+      if (this.events[eventName]) {
+        for (var i = 0; i < this.events[eventName].length; i++) {
+          if (this.events[eventName][i] === fn) {
+            this.events[eventName].splice(i, 1);
+            break;
+          }
+        };
+      }
+    },
+    emit: function (eventName, data) {
+      if (this.events[eventName]) {
+        this.events[eventName].forEach(function(fn) {
+          fn(data);
+        });
+      }
+    }
+  };
+
 const gameBoard = (function () {
     let gameBoardArr = [];
+
+    //Bind events
+    events.on('changeMark', changeMark)
 
     //reset gameboard and fill with 9xEmpty Slots
     const init = function () {
@@ -55,6 +83,20 @@ const gameBoard = (function () {
         return a === b && b === c && a != null
     };
 
+    
+    const changeMark = function (marks) {
+        console.log(marks)
+
+        gameBoardArr.forEach((cell, i, arr) => {
+            if(cell === marks.old) arr[i] = marks.new;
+        })
+
+        console.log(gameBoardArr)
+    }
+
+    
+
+
     return { init, placeMark, getGameBoard, checkForWinner, checkForDraw }
 })();
 
@@ -75,7 +117,11 @@ const Players = (function () {
         let changeName = (name) => { player.name = name }
         let getName = () => player.name;
 
-        let changeMark = (mark) => { player.mark = mark }
+        let changeMark = (mark) => {
+            events.emit("changeMark", {old: player.mark, new: mark});
+            player.mark = mark 
+            
+            }
         let getMark = () => player.mark;
 
         let toggleType = () => {
@@ -90,7 +136,6 @@ const Players = (function () {
     return { players }
 
 })();
-
 
 const playGame = (function () {
     gameBoard.init();
