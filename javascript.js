@@ -1,33 +1,31 @@
 var events = {
     events: {},
     on: function (eventName, fn) {
-      this.events[eventName] = this.events[eventName] || [];
-      this.events[eventName].push(fn);
+        this.events[eventName] = this.events[eventName] || [];
+        this.events[eventName].push(fn);
     },
-    off: function(eventName, fn) {
-      if (this.events[eventName]) {
-        for (var i = 0; i < this.events[eventName].length; i++) {
-          if (this.events[eventName][i] === fn) {
-            this.events[eventName].splice(i, 1);
-            break;
-          }
-        };
-      }
+    off: function (eventName, fn) {
+        if (this.events[eventName]) {
+            for (var i = 0; i < this.events[eventName].length; i++) {
+                if (this.events[eventName][i] === fn) {
+                    this.events[eventName].splice(i, 1);
+                    break;
+                }
+            };
+        }
     },
     emit: function (eventName, data) {
-      if (this.events[eventName]) {
-        this.events[eventName].forEach(function(fn) {
-          fn(data);
-        });
-      }
+        if (this.events[eventName]) {
+            this.events[eventName].forEach(function (fn) {
+                fn(data);
+            });
+        }
     }
-  };
+};
 
 const gameBoard = (function () {
     let gameBoardArr = [];
 
-    //Bind events
-    events.on('changeMark', changeMark)
 
     //reset gameboard and fill with 9xEmpty Slots
     const init = function () {
@@ -83,19 +81,21 @@ const gameBoard = (function () {
         return a === b && b === c && a != null
     };
 
-    
+
     const changeMark = function (marks) {
         console.log(marks)
 
         gameBoardArr.forEach((cell, i, arr) => {
-            if(cell === marks.old) arr[i] = marks.new;
+            if (cell === marks.old) arr[i] = marks.new;
         })
 
         console.log(gameBoardArr)
     }
 
-    
 
+
+    //Bind events
+    events.on('changeMark', changeMark)
 
     return { init, placeMark, getGameBoard, checkForWinner, checkForDraw }
 })();
@@ -103,7 +103,7 @@ const gameBoard = (function () {
 const Players = (function () {
 
     let players = {
-        player1: createPlayer("Player1", "X", "human"),
+        player1: createPlayer("Player1", "X", "cpu"),
         player2: createPlayer("Player2", "O", "cpu")
     }
 
@@ -118,10 +118,10 @@ const Players = (function () {
         let getName = () => player.name;
 
         let changeMark = (mark) => {
-            events.emit("changeMark", {old: player.mark, new: mark});
-            player.mark = mark 
-            
-            }
+            events.emit("changeMark", { old: player.mark, new: mark });
+            player.mark = mark
+
+        }
         let getMark = () => player.mark;
 
         let toggleType = () => {
@@ -144,14 +144,24 @@ const playGame = (function () {
 
     let currentPlayer = players.player1;
 
+    let finished = false;
+
     //Plays next turn only if spot is not taken
     const nextTurn = function (location) {
 
         if (gameBoard.placeMark(currentPlayer.getMark(), location != null ? location : random())) {
             checkForWinner();
+            
+        } else {
+            if (!finished && currentPlayer.getType() === "cpu") {
+                nextTurn();
+                console.log("!!!")
+                return "hello"
+            }
+            
         }
+        
         console.log(gameBoard.getGameBoard());
-
         checkForDraw()
     }
 
@@ -168,12 +178,19 @@ const playGame = (function () {
 
     const gameOver = function (message) {
         console.log(message);
-
+        finished = true;
     }
 
     //swaps whos turn it is
     const swtichTurn = function () {
-        currentPlayer = (currentPlayer === players.player1 ? players.player2 : players.player1)
+        currentPlayer = (currentPlayer === players.player1 ? players.player2 : players.player1);
+
+        //if game is not finished and a player is a cpu 
+        if (!finished && currentPlayer.getType() === "cpu") {
+
+            console.log(currentPlayer.getName())
+            nextTurn();
+        }
     }
 
     //Random number between 1-9
@@ -184,12 +201,12 @@ const playGame = (function () {
 
 
 
-playGame.nextTurn(0)
-playGame.nextTurn(2)
-playGame.nextTurn(1)
-playGame.nextTurn(3)
-playGame.nextTurn(5)
-playGame.nextTurn(4)
-playGame.nextTurn(6)
-playGame.nextTurn(7)
-playGame.nextTurn(8)
+// playGame.nextTurn(0)
+// playGame.nextTurn(2)
+// playGame.nextTurn(1)
+// playGame.nextTurn(3)
+// playGame.nextTurn(5)
+// playGame.nextTurn(4)
+// playGame.nextTurn(6)
+// playGame.nextTurn(7)
+// playGame.nextTurn(8)
