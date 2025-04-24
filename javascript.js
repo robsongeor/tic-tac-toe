@@ -30,28 +30,31 @@ const gameBoard = (function () {
 const playGame = (function () {
     gameBoard.init();
 
-    let player1Mark = "X";
-    let player2Mark = "O";
+    let player1 = {
+        mark : "x",
+    }
 
-    let currentPlayersTurn = 1;
+    let player2 = {
+        mark: "o",
+    }
 
-    const nextTurn = function (location) {
+    let currentTurn = player1
 
-        if (currentPlayersTurn == 1) {
-            if (gameBoard.placeMark(player1Mark, Math.floor(Math.random() * 9))) {
-                currentPlayersTurn = 2;
-            };
-
-        } else {
-            if (gameBoard.placeMark(player2Mark, Math.floor(Math.random() * 9))) {
-                currentPlayersTurn = 1;
-            }
-
+    //Plays next turn only if spot is not taken
+    const nextTurn = function (location) { 
+        if(gameBoard.placeMark(currentTurn.mark, location ? location : random())){
+            swtichTurn();
         }
-
         console.log(gameBoard.getGameBoard());
     }
 
+    //swaps whos turn it is
+    const swtichTurn = function (){
+        currentTurn = (currentTurn === player1 ? player2 : player1)
+    }
+
+    //Random number between 1-9
+    const random = () => Math.floor(Math.random() * 9);
 
     return { nextTurn }
 })();
