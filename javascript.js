@@ -1,6 +1,7 @@
 const gameBoard = (function () {
     let gameBoardArr = [];
 
+    //reset gameboard and fill with 9xEmpty Slots
     const init = function () {
         gameBoardArr = [];
         for (let i = 0; i < 9; i++) {
@@ -23,34 +24,73 @@ const gameBoard = (function () {
     const getGameBoard = () => { return gameBoardArr };
     const isSpotEmpty = (location) => { return (gameBoardArr[location] == null); }
 
+    const checkForWinner = function () {
+        let arr = gameBoardArr;
+        // Go through each winner combination
+        // and return true if gameboard has spots that match a winning sequence
+        return foundWinner =
+            winnerSequences.some(wi => checkIfSame(
+                arr[wi[0]],
+                arr[wi[1]],
+                arr[wi[2]]
+            ))
+    };
 
-    return { init, placeMark, getGameBoard }
+
+    const checkIfSame = function (a, b, c) {
+        //if a == b == c and is not null
+        return (a === b && b === c && a != null);
+    }
+
+
+    const winnerSequences = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ]
+
+
+    return { init, placeMark, getGameBoard, checkForWinner }
 })();
 
 const playGame = (function () {
     gameBoard.init();
 
     let player1 = {
-        mark : "x",
+        name: "player1",
+        mark: "x",
     }
 
     let player2 = {
+        name: "player2",
         mark: "o",
     }
 
-    let currentTurn = player1
+    let currentPlayer = player1
 
     //Plays next turn only if spot is not taken
-    const nextTurn = function (location) { 
-        if(gameBoard.placeMark(currentTurn.mark, location ? location : random())){
-            swtichTurn();
+    const nextTurn = function (location) {
+        if (gameBoard.placeMark(currentPlayer.mark, location != null ? location : random())) {
+            checkForWinner();
         }
         console.log(gameBoard.getGameBoard());
     }
 
+    const checkForWinner = function () {
+        //CHECK FOR A WINNER CODE
+        gameBoard.checkForWinner() ?
+            console.log(`${currentPlayer.name} wins!`) :
+            swtichTurn();
+    }
+
     //swaps whos turn it is
-    const swtichTurn = function (){
-        currentTurn = (currentTurn === player1 ? player2 : player1)
+    const swtichTurn = function () {
+        currentPlayer = (currentPlayer === player1 ? player2 : player1)
     }
 
     //Random number between 1-9
