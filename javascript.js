@@ -21,9 +21,6 @@ const gameBoard = (function () {
         }
     }
 
-    const getGameBoard = () => { return gameBoardArr };
-    const isSpotEmpty = (location) => { return (gameBoardArr[location] == null); }
-
     const checkForWinner = function () {
         let arr = gameBoardArr;
         // Go through each winner combination
@@ -37,12 +34,6 @@ const gameBoard = (function () {
     };
 
 
-    const checkIfSame = function (a, b, c) {
-        //if a == b == c and is not null
-        return (a === b && b === c && a != null);
-    }
-
-
     const winnerSequences = [
         [0, 1, 2],
         [3, 4, 5],
@@ -54,7 +45,10 @@ const gameBoard = (function () {
         [2, 4, 6]
     ]
 
-
+    const getGameBoard = () => { return gameBoardArr };
+    const isSpotEmpty = (location) => { return (gameBoardArr[location] == null); }
+    const checkIfSame = (a, b, c) => {return a === b && b === c && a != null};
+    
     return { init, placeMark, getGameBoard, checkForWinner }
 })();
 
