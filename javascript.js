@@ -81,6 +81,15 @@ const gameBoard = (function () {
         return a === b && b === c && a != null
     };
 
+    const getEmptySpots = function () {
+        let arr = [];
+
+        gameBoardArr.forEach((element, index) => {
+            if (element === null) arr.push(index);
+        });
+
+        return arr;
+    }
 
     const changeMark = function (marks) {
         console.log(marks)
@@ -97,7 +106,7 @@ const gameBoard = (function () {
     //Bind events
     events.on('changeMark', changeMark)
 
-    return { init, placeMark, getGameBoard, checkForWinner, checkForDraw }
+    return { init, placeMark, getGameBoard, checkForWinner, checkForDraw, getEmptySpots }
 })();
 
 const Players = (function () {
@@ -148,28 +157,31 @@ const playGame = (function () {
 
     //Plays next turn only if spot is not taken
     const nextTurn = function (location) {
+        if (!finished) {
 
-        if (gameBoard.placeMark(currentPlayer.getMark(), location != null ? location : random())) {
-            checkForWinner();
-            
-        } else {
-            if (!finished && currentPlayer.getType() === "cpu") {
-                nextTurn();
-                console.log("!!!")
-                return "hello"
-            }
-            
         }
-        
+
+        if (gameBoard.placeMark(currentPlayer.getMark(), location != null ? location : getCpuMove())) {
+            checkForWinner();
+        }
+
+        console.log(gameBoard.getEmptySpots());
+
         console.log(gameBoard.getGameBoard());
         checkForDraw()
     }
 
+    const getCpuMove = function () {
+        let emptySpots = gameBoard.getEmptySpots();
+        let randomIndex = random(emptySpots.length);
+        return emptySpots[randomIndex];
+    }
+
     const checkForWinner = function () {
         //CHECK FOR A WINNER CODE
-        gameBoard.checkForWinner() ?
-            gameOver(`${currentPlayer.getName()} wins!`) :
-            swtichTurn();
+        if( gameBoard.checkForWinner()) {
+            gameOver(`${currentPlayer.getName()} wins!`)
+        }
     }
 
     const checkForDraw = function () {
@@ -185,16 +197,15 @@ const playGame = (function () {
     const swtichTurn = function () {
         currentPlayer = (currentPlayer === players.player1 ? players.player2 : players.player1);
 
-        //if game is not finished and a player is a cpu 
-        if (!finished && currentPlayer.getType() === "cpu") {
-
-            console.log(currentPlayer.getName())
-            nextTurn();
+        //If CPU player, generate next turn
+        if (currentPlayer.getType() === "cpu") {
+            //nextTurn();
+            console.log(`${currentPlayer.getName()}'s turn`)
         }
     }
 
-    //Random number between 1-9
-    const random = () => Math.floor(Math.random() * 9);
+    //Random number between 1-max
+    const random = (max) => Math.floor(Math.random() * max);
 
     return { nextTurn }
 })();
