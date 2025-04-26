@@ -1,0 +1,21 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#gameboard {
+    width: 500px;
+    height: 500px;
+    
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px
+}
+
+#gameboard > div {
+
+    background-color: rgb(204, 204, 204);
+}

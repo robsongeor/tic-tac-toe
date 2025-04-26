@@ -37,14 +37,7 @@ const gameBoard = (function () {
     };
 
     const placeMark = function (mark, location) {
-
-        if (isSpotEmpty(location)) {
-            gameBoardArr[location] = mark;
-            return true;
-        } else {
-            console.log(`spot taken, cannot place ${mark} at ${location}`)
-            return false;
-        }
+        gameBoardArr[location] = mark;
     }
 
     const checkForDraw = function () {
@@ -101,19 +94,33 @@ const gameBoard = (function () {
         console.log(gameBoardArr)
     }
 
+    const displayAsBoard = function () {
+        let arr = [];
+
+        for (let y = 0; y < 3; y++) {
+            arr.push([])
+            for (let x = 0; x < 3; x++) {
+                let index = y * 3 + x;
+                arr[y][x] = gameBoardArr[index];
+            }
+        }
+
+        return arr;
+
+    }
 
 
     //Bind events
     events.on('changeMark', changeMark)
 
-    return { init, placeMark, getGameBoard, checkForWinner, checkForDraw, getEmptySpots }
+    return { init, placeMark, getGameBoard, checkForWinner, checkForDraw, getEmptySpots, displayAsBoard }
 })();
 
 const Players = (function () {
 
     let players = {
-        player1: createPlayer("Player1", "X", "cpu"),
-        player2: createPlayer("Player2", "O", "cpu")
+        player1: createPlayer("Player1", "X", "human"),
+        player2: createPlayer("Player2", "O", "human")
     }
 
     function createPlayer(name, mark, type) {
@@ -147,69 +154,72 @@ const Players = (function () {
 })();
 
 const playGame = (function () {
-    gameBoard.init();
 
     let players = Players.players;
-
     let currentPlayer = players.player1;
 
-    let finished = false;
-
-    //Plays next turn only if spot is not taken
-    const nextTurn = function (location) {
-        if (!finished) {
-
-        }
-
-        if (gameBoard.placeMark(currentPlayer.getMark(), location != null ? location : getCpuMove())) {
-            checkForWinner();
-        }
-
-        console.log(gameBoard.getEmptySpots());
-
-        console.log(gameBoard.getGameBoard());
-        checkForDraw()
+    const startGame = function (){
+        gameBoard.init();
     }
 
+    const nextTurn = function (location) {
+        //Place a mark
+        gameBoard.placeMark(currentPlayer.getMark(), location)
+        //if game not over, switch turn
+        if (!checkGameover()) {
+            swtichTurn();
+        }
+
+        console.table(gameBoard.displayAsBoard());
+    }
+
+    const playHumanMove = function (location) {
+        if (gameBoard.getGameBoard()[location] !== null) {
+            console.log("spot taken");
+        } else {
+            nextTurn(location)
+        }
+    }
+
+
     const getCpuMove = function () {
+        //only generates a turn in a empty spot
         let emptySpots = gameBoard.getEmptySpots();
         let randomIndex = random(emptySpots.length);
         return emptySpots[randomIndex];
     }
 
-    const checkForWinner = function () {
-        //CHECK FOR A WINNER CODE
-        if( gameBoard.checkForWinner()) {
-            gameOver(`${currentPlayer.getName()} wins!`)
+    const checkGameover = function () {
+        //If winner or draw, game is over. else game is not over
+        if (gameBoard.checkForWinner()) {
+            return gameOver(`${currentPlayer.getName()} wins!`);
+        } else if (gameBoard.checkForDraw()) {
+            return gameOver(`draw!`);;
+        } else {
+            return false;
         }
-    }
-
-    const checkForDraw = function () {
-        if (gameBoard.checkForDraw()) gameOver("Draw");
     }
 
     const gameOver = function (message) {
         console.log(message);
-        finished = true;
+        return true;
     }
 
     //swaps whos turn it is
     const swtichTurn = function () {
         currentPlayer = (currentPlayer === players.player1 ? players.player2 : players.player1);
-
-        //If CPU player, generate next turn
-        if (currentPlayer.getType() === "cpu") {
-            //nextTurn();
-            console.log(`${currentPlayer.getName()}'s turn`)
-        }
     }
 
     //Random number between 1-max
     const random = (max) => Math.floor(Math.random() * max);
 
-    return { nextTurn }
+    return { playHumanMove, startGame }
 })();
 
+const screenController = (function (){
+    let gameboard = document.getElementById("gameboard")
+
+})();
 
 
 // playGame.nextTurn(0)
