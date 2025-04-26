@@ -166,7 +166,8 @@ const playGame = (function () {
 
     const startGame = function () {
         gameBoard.init();
-    }()
+        isGameOver = false;
+    }
 
     const nextTurn = function (location) {
         //Place a mark
@@ -226,6 +227,9 @@ const playGame = (function () {
     const random = (max) => Math.floor(Math.random() * max);
 
     events.on("playHumanMove", playHumanMove)
+    events.on("startNewGame", () => startGame())
+
+    startGame();
 
     return {}
 })();
@@ -286,8 +290,15 @@ const screenController = (function () {
         })
     }();
 
+    const restartGame = function (){
+        let restartButton = document.querySelector(".restart-btn");
+
+        restartButton.addEventListener("click", () => events.emit("startNewGame", ""))
+    }();
+
     events.on("placeMark", updateGameboard)
     events.on("invalidInput", invalidSpotSelection)
+    events.on("startNewGame", reRenderBoard)
 
 })();
 
