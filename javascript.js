@@ -38,6 +38,7 @@ const gameBoard = (function () {
 
     const placeMark = function (mark, location) {
         gameBoardArr[location] = mark;
+        events.emit("placeMark", {mark, location});
     }
 
     const checkForDraw = function () {
@@ -218,6 +219,12 @@ const playGame = (function () {
 
 const screenController = (function (){
     let gameboard = document.getElementById("gameboard")
+
+    const updateGameboard = function(){
+        console.log("updated gameboard");
+    }
+
+    events.on("placeMark", updateGameboard)
 
 })();
 
