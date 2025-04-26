@@ -131,11 +131,15 @@ const Players = (function () {
             type: type,
         }
 
-        let changeName = (name) => { player.name = name }
+        let changeName = (name) => {
+            console.log(name)
+            player.name = name
+        }
         let getName = () => player.name;
 
         let changeMark = (mark) => {
             events.emit("changeMark", { old: player.mark, new: mark });
+            console.log(mark)
             player.mark = mark
 
         }
@@ -235,6 +239,14 @@ const screenController = (function () {
             cell.addEventListener("click", () => placeMark(index)))
     }()
 
+    const reRenderBoard = function () {
+        cells.forEach((cell, index) =>
+            cell.textContent = gameBoard.getGameBoard()[index]
+        )
+    }
+
+    events.on("changeMark", reRenderBoard)
+
     const placeMark = function (index) {
         events.emit("playHumanMove", index);
     }
@@ -260,26 +272,18 @@ const screenController = (function () {
         cells[cell].animate(errorAnimation, errorTiming)
     }
 
-    const displayPlayers = function (){
+    const displayPlayers = function () {
         let playersContainer = document.querySelector(".players-container")
 
-        Object.values(Players.players).forEach(player => {
-            let playerContainer = document.createElement("div");
-            let name = document.createElement("div");
-            let mark = document.createElement("div");
+        Object.entries(Players.players).forEach(player => {
+            let name = document.querySelector(`#${player[0]}-name`)
+            let mark = document.querySelector(`#${player[0]}-mark`)
+            name.value = player[1].getName();
+            mark.value = player[1].getMark();
 
-            name.textContent = player.getName();
-            mark.textContent = player.getMark();
-
-            playerContainer.append(name);
-            playerContainer.append(mark)
-
-            playersContainer.append(playerContainer)
+            name.addEventListener("change", () => player[1].changeName(name.value))
+            mark.addEventListener("change", () => player[1].changeMark(mark.value))
         })
-
-
-
-        //Players.players.forEach(player, () => console.log(player))
     }();
 
     events.on("placeMark", updateGameboard)
