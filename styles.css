@@ -12,9 +12,13 @@
 
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
     gap: 1px
 }
 
 #gameboard > div {
     background-color: rgb(204, 204, 204);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
