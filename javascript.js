@@ -218,7 +218,17 @@ const playGame = (function () {
 })();
 
 const screenController = (function (){
-    let gameboardContainer = document.getElementById("gameboard")
+    let gameboardContainer = document.getElementById("gameboard");
+    let cells = Array.from(gameboardContainer.children);
+
+    const addCellEventListeners = function(){
+        cells.forEach((cell, index) => 
+            cell.addEventListener("click", () => placeMark(index) ))
+    }()
+
+    const placeMark = function(index){
+        console.log(index)
+    }
 
     const updateGameboard = function(ml){
         let spot = gameboardContainer.children.item(ml.location);
