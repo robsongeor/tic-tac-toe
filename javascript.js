@@ -260,6 +260,28 @@ const screenController = (function () {
         cells[cell].animate(errorAnimation, errorTiming)
     }
 
+    const displayPlayers = function (){
+        let playersContainer = document.querySelector(".players-container")
+
+        Object.values(Players.players).forEach(player => {
+            let playerContainer = document.createElement("div");
+            let name = document.createElement("div");
+            let mark = document.createElement("div");
+
+            name.textContent = player.getName();
+            mark.textContent = player.getMark();
+
+            playerContainer.append(name);
+            playerContainer.append(mark)
+
+            playersContainer.append(playerContainer)
+        })
+
+
+
+        //Players.players.forEach(player, () => console.log(player))
+    }();
+
     events.on("placeMark", updateGameboard)
     events.on("invalidInput", invalidSpotSelection)
 
