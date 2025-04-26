@@ -214,7 +214,9 @@ const playGame = (function () {
     //Random number between 1-max
     const random = (max) => Math.floor(Math.random() * max);
 
-    return { playHumanMove, startGame }
+    events.on("playHumanMove", playHumanMove)
+
+    return {}
 })();
 
 const screenController = (function (){
@@ -227,7 +229,7 @@ const screenController = (function (){
     }()
 
     const placeMark = function(index){
-        playGame.playHumanMove(index)
+        events.emit("playHumanMove", index);
     }
 
     const updateGameboard = function(ml){
