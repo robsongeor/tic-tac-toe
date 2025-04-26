@@ -38,7 +38,7 @@ const gameBoard = (function () {
 
     const placeMark = function (mark, location) {
         gameBoardArr[location] = mark;
-        events.emit("placeMark", {mark, location});
+        events.emit("placeMark", { mark, location });
     }
 
     const checkForDraw = function () {
@@ -158,25 +158,31 @@ const playGame = (function () {
 
     let players = Players.players;
     let currentPlayer = players.player1;
+    let isGameOver = false;
 
-    const startGame = function (){
+    const startGame = function () {
         gameBoard.init();
     }()
 
     const nextTurn = function (location) {
         //Place a mark
-        gameBoard.placeMark(currentPlayer.getMark(), location)
-        //if game not over, switch turn
-        if (!checkGameover()) {
-            swtichTurn();
-        }
+        if (!isGameOver) {
 
-        console.table(gameBoard.displayAsBoard());
+            gameBoard.placeMark(currentPlayer.getMark(), location)
+            //if game not over, switch turn
+            if (!checkGameover()) {
+                swtichTurn();
+            }
+
+            console.table(gameBoard.displayAsBoard());
+        } else {
+            events.emit("invalidInput", location);
+        }
     }
 
     const playHumanMove = function (location) {
         if (gameBoard.getGameBoard()[location] !== null) {
-            console.log("spot taken");
+            events.emit("invalidInput", location)
         } else {
             nextTurn(location)
         }
@@ -203,6 +209,7 @@ const playGame = (function () {
 
     const gameOver = function (message) {
         console.log(message);
+        isGameOver = true;
         return true;
     }
 
@@ -219,25 +226,42 @@ const playGame = (function () {
     return {}
 })();
 
-const screenController = (function (){
+const screenController = (function () {
     let gameboardContainer = document.getElementById("gameboard");
     let cells = Array.from(gameboardContainer.children);
 
-    const addCellEventListeners = function(){
-        cells.forEach((cell, index) => 
-            cell.addEventListener("click", () => placeMark(index) ))
+    const addCellEventListeners = function () {
+        cells.forEach((cell, index) =>
+            cell.addEventListener("click", () => placeMark(index)))
     }()
 
-    const placeMark = function(index){
+    const placeMark = function (index) {
         events.emit("playHumanMove", index);
     }
 
-    const updateGameboard = function(ml){
+    const updateGameboard = function (ml) {
         let spot = gameboardContainer.children.item(ml.location);
         spot.textContent = (ml.mark)
     }
 
+    const invalidSpotSelection = function (cell) {
+        let bg = window.getComputedStyle(cells[cell]).getPropertyValue("background-color")
+
+        const errorAnimation = [
+            { backgroundColor: "red" },
+            { backgroundColor: bg }
+        ];
+
+        const errorTiming = {
+            duration: 100,
+            iterations: 1
+        };
+
+        cells[cell].animate(errorAnimation, errorTiming)
+    }
+
     events.on("placeMark", updateGameboard)
+    events.on("invalidInput", invalidSpotSelection)
 
 })();
 
