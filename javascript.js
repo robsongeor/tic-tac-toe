@@ -161,7 +161,7 @@ const playGame = (function () {
 
     const startGame = function (){
         gameBoard.init();
-    }
+    }()
 
     const nextTurn = function (location) {
         //Place a mark
@@ -227,7 +227,7 @@ const screenController = (function (){
     }()
 
     const placeMark = function(index){
-        console.log(index)
+        playGame.playHumanMove(index)
     }
 
     const updateGameboard = function(ml){
