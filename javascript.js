@@ -218,10 +218,11 @@ const playGame = (function () {
 })();
 
 const screenController = (function (){
-    let gameboard = document.getElementById("gameboard")
+    let gameboardContainer = document.getElementById("gameboard")
 
-    const updateGameboard = function(){
-        console.log("updated gameboard");
+    const updateGameboard = function(ml){
+        let spot = gameboardContainer.children.item(ml.location);
+        spot.textContent = (ml.mark)
     }
 
     events.on("placeMark", updateGameboard)
